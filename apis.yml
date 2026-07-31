@@ -1,7 +1,29 @@
 aid: osmaura
+accessModel:
+  pricing: unknown
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Unknown
+  confidence: low
+  source: []
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/osmaura.png
 name: Osmaura
-description: Osmaura is a company surfaced as a portfolio company of y-combinator and added to the API
-  Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Osmaura is a Y Combinator (Summer 2026) startup building an AI-powered business
+  development platform for corporate law firm partners. Its agents monitor the web,
+  news, social media, and a firm's internal context to surface targeted new-matter
+  opportunities, then recommend tailored outreach strategies. The platform works in
+  three stages: building partner profiles from practice areas and networks, identifying
+  prospective clients and their legal needs from external data sources, and suggesting
+  engagement approaches for each opportunity. Founded by MIT graduates Kali Abeje and
+  Jity Woldemichael. As of this profile the company publishes only a marketing landing
+  page and a booking link — no public API, developer portal, documentation, or SDKs
+  exist yet. Added to the API Evangelist network as a portfolio lead awaiting an API
+  surface to enrich.
 url: https://raw.githubusercontent.com/api-evangelist/osmaura/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -11,12 +33,34 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-20'
 tags:
 - Company
+- Legal
+- LegalTech
+- Artificial Intelligence
+- Sales Enablement
+- Business Development
+- Y Combinator
 apis: []
+common:
+- type: DomainSecurity
+  url: security/osmaura-domain-security.yml
+- type: Website
+  url: https://osmaura.com
+- type: SignUp
+  url: https://cal.com/osmaura-ycs26/intro-meeting
+  name: Book an intro meeting
+- type: Support
+  url: mailto:founders@osmaura.com
+  name: Contact founders
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-07-20'
+  status: minimal
+  artifacts_added: 1
+  pass: local-v1
