@@ -1,0 +1,114 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Osmaura Prospect API
+  version: 1.0.0
+extends: openapi/osmaura-prospect-openapi.yml
+x-generated: '2026-08-14'
+x-method: generated
+x-source: >-
+  Derived from the provider's published OpenAPI at
+  https://dashboard.osmaura.com/signals/openapi.yaml plus the docs at
+  https://dashboard.osmaura.com/signals/docs. This overlay records API Evangelist
+  enhancements only — the harvested spec in openapi/ is never mutated.
+x-gaps-addressed:
+- The published spec declares no tags at root and tags no operation, so every
+  operation lands untagged in tooling and rendered docs.
+- The spec carries no contact, license, or termsOfService in info.
+- The spec carries no externalDocs pointing at the human documentation.
+- The spec carries no response examples, though the docs publish a full example payload.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-profile: https://apis.io/provider/osmaura/
+    x-apievangelist-harvested: '2026-08-14'
+    x-api-surface: read-only
+    x-operation-count: 4
+    x-deprecated-operation-count: 2
+- target: $.info
+  description: >-
+    Record the human documentation and the pricing gate, neither of which the
+    published spec references.
+  update:
+    x-documentation: https://dashboard.osmaura.com/signals/docs
+    x-pricing: https://dashboard.osmaura.com/
+    x-access-note: >-
+      Production access requires an active organization plan ($1,000/month) and a
+      private invitation link; every operation returns 402 without one.
+- target: $
+  description: Declare the tag set the operations should carry.
+  update:
+    tags:
+    - name: Prospects
+      description: Published prospect editions and their dossiers.
+      externalDocs:
+        url: https://dashboard.osmaura.com/signals/docs#prospects
+    - name: Editions
+      description: Published-edition history and metadata.
+      externalDocs:
+        url: https://dashboard.osmaura.com/signals/docs#history
+    - name: Legacy
+      description: Deprecated v1 compact signal surface, retained for existing integrations.
+      externalDocs:
+        url: https://dashboard.osmaura.com/signals/docs#legacy
+- target: $
+  description: Point the spec at the human documentation.
+  update:
+    externalDocs:
+      description: Osmaura API documentation
+      url: https://dashboard.osmaura.com/signals/docs
+- target: $.paths['/v2/prospects'].get
+  update:
+    tags: [Prospects]
+    x-conventions: conventions/osmaura-conventions.yml
+    x-polling-guidance: >-
+      Send If-None-Match with the ETag of the last edition retrieved and treat 304
+      as "no new edition". Editions are published on a cadence, not streamed.
+- target: $.paths['/v2/prospect-editions'].get
+  update:
+    tags: [Editions]
+    x-conventions: conventions/osmaura-conventions.yml
+    x-usage-guidance: >-
+      Call this before requesting a dated edition — a date with no published
+      edition returns 404, and drafts are never listed.
+- target: $.paths['/v1/signals'].get
+  update:
+    tags: [Legacy]
+    x-deprecation-note: >-
+      Marked deprecated by the provider. Remains available for existing
+      integrations; superseded by getProspects. No sunset date is published.
+    x-successor: getProspects
+- target: $.paths['/v1/signal-editions'].get
+  update:
+    tags: [Legacy]
+    x-deprecation-note: >-
+      Marked deprecated by the provider. Remains available for existing
+      integrations; superseded by listProspectEditions. No sunset date is published.
+    x-successor: listProspectEditions
+- target: $.components.securitySchemes.bearerAuth
+  update:
+    x-key-prefix: signals_live_
+    x-rotation: >-
+      Dashboard > API keys > Rotate. The old key is revoked immediately and the
+      replacement is displayed once. Additional keys can be minted per agent
+      without revoking existing ones.
+    x-tenancy: >-
+      The account is inferred from the key; no organization identifier is ever
+      sent on a request.
+- target: $.components.schemas.ProspectDossier
+  update:
+    x-contract-note: >-
+      The four peer branches are a published guarantee, not a convention: observed
+      records belong in `data`, conclusions belong in `analysis`, and `coverage`
+      distinguishes zero from unknown from not-checked. Consumers must not
+      restate `analysis` content as observed fact.
+- target: $.components.schemas.Source
+  update:
+    x-provenance-note: >-
+      A source code such as `dol_lca` is never sufficient on its own. Verification
+      requires official_page_url plus record_locator, and for bulk datasets the
+      dataset filename, layout, and data_through date.
+- target: $.components.schemas.Error
+  update:
+    x-error-catalog: errors/osmaura-problem-types.yml
+    x-rfc9457: false
+    x-note: Proprietary envelope; not application/problem+json.

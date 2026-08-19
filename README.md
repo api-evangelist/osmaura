@@ -42,6 +42,30 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Osmaura is a company surfaced as a portfolio company of y-combinator and added to the API Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+Osmaura is a Y Combinator (Summer 2026) startup building opportunity intelligence for corporate
+law firms — monitoring public web signals and the government record to identify companies
+approaching a legal need, then briefing the right partner on why the moment may matter.
+
+## API surface
+
+Osmaura ships a production REST API, the **Osmaura Prospect API**, with a publicly published
+OpenAPI 3.1 definition.
+
+| | |
+|---|---|
+| Documentation | https://dashboard.osmaura.com/signals/docs |
+| OpenAPI | https://dashboard.osmaura.com/signals/openapi.yaml |
+| Base URL | `https://dashboard.osmaura.com` |
+| Operations | 4 (2 current, 2 deprecated v1) |
+| Authentication | Tenant-scoped bearer key (`signals_live_…`) |
+| Pricing | $1,000/month organization plan, invitation-gated |
+
+The API returns dated, human-reviewed **editions** of ranked prospect dossiers. Its defining
+contract is editorial: observed records live under `data` with a mandatory source link and
+record locator, analyst conclusions live under `analysis`, and `coverage` records what was
+checked — distinguishing zero from unknown from not-checked.
+
+Not published as of this profile: MCP server, A2A agent card, any `/.well-known/` document,
+client SDKs, a status page, a changelog, webhooks or any event surface, and terms/privacy pages.
 
 Backed by: y-combinator

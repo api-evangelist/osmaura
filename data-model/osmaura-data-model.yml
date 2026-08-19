@@ -1,0 +1,271 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/osmaura-prospect-openapi.yml
+summary: >-
+  A single-root read model. Every response descends from ProspectEdition, a dated
+  batch of ProspectDossier objects. The dossier is deliberately split into four
+  peer branches — identity (`prospect`), observed facts (`data`), conclusions
+  (`analysis`), and what was checked (`coverage`) — and that split is the
+  provider's central published contract, not an incidental schema shape. The graph
+  is a tree: there are no back-references and no cross-entity ids, because a
+  dossier is a self-contained document rather than a row joined to other rows.
+entity_count: 32
+root_entities:
+- ProspectEdition
+- LegacyEdition
+id_fields:
+- entity: ProspectDossier
+  field: id
+  observed_prefix: sig_
+  example: sig_01example
+- entity: FactualRecord
+  field: id
+  observed_prefix: dol_lca_
+  example: dol_lca_I-200-example
+  note: Record ids are source-namespaced; the prefix names the dataset the fact came from.
+- entity: WhyNow
+  field: evidence_ids
+  references: FactualRecord.id
+  note: >-
+    The only referential link inside a dossier — analysis narratives cite the ids
+    of the factual records they rest on, which is how a conclusion is traced back
+    to evidence.
+entities:
+- name: ProspectEdition
+  role: root
+  description: A dated, published batch of ranked prospect dossiers for one account.
+  key_fields: [object, schema_version, edition_date, revision, published_at, count, prospects]
+  constraints: count 1-100; prospects array minItems 1 maxItems 100; additionalProperties false
+- name: EditionSummary
+  role: root-index
+  description: One row of the published-edition history; no dossier payload.
+  key_fields: [edition_date, published_at, revision, count]
+- name: ProspectDossier
+  role: aggregate
+  description: One prospect, with identity, observed data, analysis, and coverage kept separate.
+  key_fields: [id, prospect, data, analysis, coverage]
+- name: ProspectIdentity
+  role: identity
+  description: Normalized identity only — organization or person.
+  key_fields: [type, name, legal_names, domain, locations, identifiers]
+  identifiers: [cik, uei]
+- name: ProspectData
+  role: fact-container
+  description: Observed records and deterministic statistics, grouped by source domain.
+  branches: [dol_oflc, government_business, company, professional, contacts]
+- name: DolData
+  role: fact-container
+  description: U.S. Department of Labor OFLC filings (e.g. LCA) as DataCollections.
+- name: DataCollection
+  role: fact-container
+  description: A statistics block plus the records those statistics were computed from.
+  key_fields: [statistics, records]
+  note: >-
+    The statistics/records pairing is what lets a total remain "data" — its inputs
+    are named alongside it.
+- name: FactualRecord
+  role: fact
+  description: One observed record with its status, dates, and mandatory source block.
+- name: FactualRecordArray
+  role: fact-container
+  description: A bare array of FactualRecord used by the non-DOL source domains.
+- name: Source
+  role: provenance
+  description: Mandatory provenance for every government-derived fact.
+  key_fields: [publisher, official_page_url, dataset, record_locator, retrieved_at]
+  required: [publisher, official_page_url, record_locator, retrieved_at]
+- name: Dataset
+  role: provenance
+  description: The exact bulk file a fact was read from, with layout and freshness.
+  key_fields: [filename, download_url, record_layout_url, data_through]
+- name: ProspectAnalysis
+  role: conclusion
+  description: All analyst/model conclusions, quarantined from data.
+  key_fields: [ranking, summary, why_now, counsel_analysis, lead_factors, counterevidence, context_only, recommendations, limitations]
+- name: Ranking
+  role: conclusion
+  key_fields: [rank, disposition, disposition_reason, scores, confidence]
+  enums:
+    disposition: [qualified, nurture, monitor, suppress]
+  constraints: confidence 0-1; rank minimum 1
+- name: Scores
+  role: conclusion
+  key_fields: [evidence_strength, overall_rank]
+- name: WhyNow
+  role: conclusion
+  description: The dated timing argument, cited back to evidence ids.
+  key_fields: [narrative, trigger_date, urgency_window, evidence_ids]
+- name: CounselAnalysis
+  role: conclusion
+  description: Scoped assessment of whether reviewed filings named counsel.
+  key_fields: [classification, narrative, filings_reviewed, named_counsel_filings, evidence_ids]
+  note: Never a bare boolean — scope and limitation travel with the claim.
+- name: CounselScope
+  role: conclusion
+- name: AnalysisFinding
+  role: conclusion
+  description: Used for lead_factors, counterevidence, and context_only.
+- name: RecommendedApproach
+  role: conclusion
+- name: EvidenceAccounting
+  role: conclusion
+- name: Coverage
+  role: audit
+  description: What was checked, how fresh it was, and what is known to be missing.
+  key_fields: [generated_at, data_through, sources, identity_warnings, known_gaps]
+  note: Explicitly distinguishes zero from unknown from not-checked.
+- name: SourceCoverage
+  role: audit
+  key_fields: [source, status, data_through, record_count]
+- name: Contact
+  role: identity
+- name: ContactChannel
+  role: identity
+- name: Location
+  role: identity
+- name: CurrentEmployment
+  role: identity
+- name: GovernmentBusinessData
+  role: fact-container
+- name: CompanyData
+  role: fact-container
+- name: ProfessionalData
+  role: fact-container
+- name: LegacyEdition
+  role: root
+  deprecated: true
+  description: v1 compact edition shape.
+- name: LegacySignal
+  role: aggregate
+  deprecated: true
+  description: v1 compact signal shape, superseded by ProspectDossier.
+- name: Error
+  role: envelope
+  key_fields: [error.code, error.message]
+relationships:
+- from: ProspectEdition
+  to: ProspectDossier
+  type: has_many
+  via: prospects
+- from: ProspectDossier
+  to: ProspectIdentity
+  type: has_one
+  via: prospect
+- from: ProspectDossier
+  to: ProspectData
+  type: has_one
+  via: data
+- from: ProspectDossier
+  to: ProspectAnalysis
+  type: has_one
+  via: analysis
+- from: ProspectDossier
+  to: Coverage
+  type: has_one
+  via: coverage
+- from: ProspectIdentity
+  to: Location
+  type: has_many
+  via: locations
+- from: ProspectIdentity
+  to: CurrentEmployment
+  type: has_one
+  via: current_employment
+- from: ProspectData
+  to: DolData
+  type: has_one
+  via: dol_oflc
+- from: ProspectData
+  to: GovernmentBusinessData
+  type: has_one
+- from: ProspectData
+  to: CompanyData
+  type: has_one
+- from: ProspectData
+  to: ProfessionalData
+  type: has_one
+- from: ProspectData
+  to: Contact
+  type: has_many
+  via: contacts
+- from: DolData
+  to: DataCollection
+  type: has_many
+  via: lca
+- from: DataCollection
+  to: FactualRecord
+  type: has_many
+  via: records
+- from: DataCollection
+  to: Source
+  type: has_one
+  via: source
+- from: GovernmentBusinessData
+  to: FactualRecordArray
+  type: has_many
+- from: CompanyData
+  to: FactualRecordArray
+  type: has_many
+- from: ProfessionalData
+  to: FactualRecordArray
+  type: has_many
+- from: FactualRecordArray
+  to: FactualRecord
+  type: has_many
+- from: FactualRecord
+  to: Source
+  type: has_one
+  via: source
+- from: Source
+  to: Dataset
+  type: has_one
+  via: dataset
+- from: Contact
+  to: ContactChannel
+  type: has_many
+  via: channels
+- from: ProspectAnalysis
+  to: Ranking
+  type: has_one
+  via: ranking
+- from: ProspectAnalysis
+  to: WhyNow
+  type: has_one
+  via: why_now
+- from: ProspectAnalysis
+  to: CounselAnalysis
+  type: has_one
+  via: counsel_analysis
+- from: ProspectAnalysis
+  to: AnalysisFinding
+  type: has_many
+  via: lead_factors / counterevidence / context_only
+- from: ProspectAnalysis
+  to: RecommendedApproach
+  type: has_many
+- from: ProspectAnalysis
+  to: EvidenceAccounting
+  type: has_one
+- from: Ranking
+  to: Scores
+  type: has_one
+  via: scores
+- from: CounselAnalysis
+  to: CounselScope
+  type: has_one
+- from: Coverage
+  to: SourceCoverage
+  type: has_many
+  via: sources
+- from: WhyNow
+  to: FactualRecord
+  type: references
+  via: evidence_ids
+- from: CounselAnalysis
+  to: FactualRecord
+  type: references
+  via: evidence_ids
+- from: LegacyEdition
+  to: LegacySignal
+  type: has_many
+  deprecated: true

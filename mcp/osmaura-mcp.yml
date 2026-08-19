@@ -1,0 +1,94 @@
+generated: '2026-08-14'
+method: derived
+status: candidate
+source: openapi/osmaura-prospect-openapi.yml
+note: >-
+  Osmaura publishes NO MCP server. This is a candidate tool list derived from the
+  published OpenAPI so the surface is legible to agents; it is not a server the
+  provider ships and no endpoint is asserted. Searched for one first: /mcp and
+  /signals/mcp return 404 on dashboard.osmaura.com, mcp.osmaura.com does not
+  resolve, no oauth-protected-resource document is served, the npm and PyPI
+  registries have no osmaura package, and there is no Osmaura GitHub organization
+  (api.github.com/orgs/osmaura -> 404).
+pointer_emitted: false
+pointer_note: >-
+  No `MCPServer` pointer is wired into apis.yml for this file. That pointer
+  asserts the provider operates an MCP server, and Osmaura does not — emitting it
+  for a mode:none candidate would credit an agent surface that cannot be reached.
+  Same discipline as the well-known probe and the agent card: a recorded absence
+  is data, not a presence. If Osmaura ships a server later, this file upgrades to
+  method: searched with a real endpoint and the pointer is added then.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  auth_note: >-
+    The underlying API authenticates with a static tenant-scoped bearer key
+    (signals_live_ prefix). The dashboard explicitly supports minting a separate
+    key per agent — "Copy API key creates a separate working key for your agent" —
+    which is the closest thing to an agent-access story the provider ships today.
+  verified: probed
+  probes:
+  - url: https://dashboard.osmaura.com/mcp
+    status: 404
+  - url: https://dashboard.osmaura.com/signals/mcp
+    status: 404
+  - url: https://dashboard.osmaura.com/.well-known/oauth-protected-resource
+    status: 404
+  - url: https://mcp.osmaura.com
+    status: NXDOMAIN
+server:
+  name: osmaura
+  transport: null
+  url: null
+tools:
+- name: get_prospects
+  description: >-
+    Retrieve the latest published prospect edition, or a historical edition by
+    ISO date. Returns ranked, source-backed prospect dossiers for the caller's
+    organization.
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+  input_schema_source: '#/paths/~1v2~1prospects/get/parameters'
+  inputs:
+  - name: date
+    in: query
+    type: string
+    format: date
+    required: false
+    description: Edition date in YYYY-MM-DD format. Omit for the latest published edition.
+  - name: If-None-Match
+    in: header
+    type: string
+    required: false
+    description: Prior edition ETag; a match returns 304 and no body.
+- name: list_prospect_editions
+  description: >-
+    List published edition dates, revision numbers, publication times, and counts.
+    Does not expose drafts or internal review state.
+  source_operation: openapi/osmaura-prospect-openapi.yml#listProspectEditions
+  input_schema_source: '#/paths/~1v2~1prospect-editions/get/parameters'
+  inputs:
+  - name: limit
+    in: query
+    type: integer
+    minimum: 1
+    maximum: 90
+    default: 30
+    required: false
+excluded_operations:
+- operation: getLegacySignals
+  reason: deprecated v1; superseded by getProspects
+- operation: listLegacySignalEditions
+  reason: deprecated v1; superseded by listProspectEditions
+agent_notes:
+- The whole surface is read-only. There is no write, no side effect, and no cost-per-call to guard.
+- >-
+    An agent must respect the provider's data/analysis separation: fields under
+    `data` are observed records with an official source link, fields under
+    `analysis` are analyst conclusions and must not be restated as fact.
+- >-
+    Poll with If-None-Match. A new edition appears on a publication cadence, not
+    continuously, so re-fetching an unchanged edition wastes the call.
+- 402 means the organization has no active plan — a billing state, not a bad request.

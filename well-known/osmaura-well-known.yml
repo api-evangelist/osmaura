@@ -1,0 +1,48 @@
+generated: '2026-08-14'
+method: probed
+source: live probes of /.well-known/* on the website and API hosts
+note: >-
+  Every /.well-known/ path probed returned 404 on both hosts. osmaura.com is an
+  Astro marketing site whose 404 handler serves an HTML page (recorded as 404 by
+  status, not a soft-200); dashboard.osmaura.com is a Flask/Werkzeug application
+  that returns a plain 404 for unknown paths. No discovery document is served, so
+  no WellKnown or SecurityTxt pointer is emitted for this provider — this file
+  records a verified absence, not a presence.
+hosts:
+- host: https://osmaura.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://dashboard.osmaura.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+related:
+  robots_txt:
+    url: https://osmaura.com/robots.txt
+    status: 200
+    note: Allows all user agents; points at https://www.osmaura.com/sitemap.xml
+  llms_txt:
+    url: https://osmaura.com/llms.txt
+    status: 200
+    file: ../llms/osmaura-llms.txt

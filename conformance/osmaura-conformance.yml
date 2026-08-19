@@ -1,0 +1,86 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/osmaura-prospect-openapi.yml
+docs: https://dashboard.osmaura.com/signals/docs
+note: >-
+  Derived from the published OpenAPI plus live observation of the API's responses.
+  Osmaura publishes no compliance program, no certifications, and no trust center,
+  so no Compliance pointer is emitted — only cross-cutting technical standards are
+  asserted here, each with the evidence it was read from.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: openapi/osmaura-prospect-openapi.yml declares openapi 3.1.0 and parses cleanly.
+- id: json-schema-2020-12
+  conforms: true
+  evidence: >-
+    OpenAPI 3.1 schemas use JSON Schema 2020-12 vocabulary directly — const, oneOf
+    with a null branch, minItems/maxItems, and additionalProperties false are used
+    throughout components.schemas.
+- id: http-bearer-auth
+  conforms: true
+  evidence: >-
+    securitySchemes.bearerAuth is type http, scheme bearer, bearerFormat "API key";
+    applied globally via a root-level security requirement.
+- id: rfc9110-conditional-requests
+  conforms: true
+  evidence: >-
+    getProspects and getLegacySignals declare an ETag response header and an
+    If-None-Match request parameter, with a documented 304 Not Modified response.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Errors are application/json with a proprietary {"error":{"code","message"}}
+    envelope, not application/problem+json. See errors/osmaura-problem-types.yml.
+- id: oauth2
+  conforms: false
+  evidence: No oauth2 securityScheme in the spec and no OAuth documented; authentication is a static bearer API key.
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404 on both hosts.
+- id: rest-crud
+  conforms: partial
+  evidence: >-
+    Read-only. All four operations are GET; there is no create, update, or delete
+    surface, so the API is a publication endpoint rather than a CRUD resource API.
+- id: pagination
+  conforms: false
+  evidence: >-
+    No cursor, offset, page, or next-link. Editions are returned whole; `limit`
+    only bounds the edition-history list.
+- id: idempotency
+  conforms: partial
+  evidence: >-
+    No idempotency-key contract is published, but the entire surface is GET and
+    therefore idempotent by HTTP method semantics.
+- id: https-tls
+  conforms: true
+  evidence: security/osmaura-domain-security.yml — TLSv1.3 on osmaura.com and dashboard.osmaura.com.
+- id: llms-txt
+  conforms: true
+  evidence: https://osmaura.com/llms.txt returns 200 text/plain; saved to llms/osmaura-llms.txt.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on both hosts (well-known/osmaura-well-known.yml).
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: >-
+    v1 operations are marked deprecated:true in the spec, but no Sunset or
+    Deprecation header is documented or observed.
+- id: mcp
+  conforms: false
+  evidence: No MCP server published; /mcp probes returned 404 on all hosts.
+- id: a2a
+  conforms: false
+  evidence: /.well-known/agent-card.json and /.well-known/agent.json returned 404 on all hosts.
+- id: asyncapi
+  conforms: false
+  evidence: No event, streaming, or webhook surface is documented — the API is poll-only over dated editions.
+compliance_program:
+  published: false
+  certifications: []
+  note: >-
+    No SOC 2, ISO 27001, HIPAA, or other certification is claimed anywhere on the
+    public surface; trust.osmaura.com does not resolve and /security returns 404.
+    A pre-seed-stage YC company with a $1,000/month product and no published
+    compliance posture — recorded as an honest absence.

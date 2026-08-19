@@ -1,0 +1,53 @@
+generated: '2026-08-14'
+method: probed
+source: https://dashboard.osmaura.com/signals/docs
+limit_count: 0
+note: >-
+  Osmaura publishes no rate limits. The API documentation has no rate-limit
+  section, the error table stops at 503 and contains no 429, and the OpenAPI
+  declares no 429 response on any of the four operations. Live unauthenticated
+  requests to /v2/prospects and /v2/prospect-editions on 2026-08-14 returned 401
+  with no RateLimit-*, X-RateLimit-*, or Retry-After header of any kind — only
+  Railway edge headers. An honest zero, not an unchecked field.
+limits: []
+headers:
+  documented: []
+  observed: []
+  observed_note: >-
+    Response headers seen on the live 401: content-type, date, server
+    (railway-hikari), x-railway-request-id, x-hikari-trace, x-railway-edge,
+    content-length. None carry rate-limit signal.
+exhaustion_status: null
+retry_after: false
+probe:
+  date: '2026-08-14'
+  requests:
+  - url: https://dashboard.osmaura.com/v2/prospects
+    method: GET
+    auth: none
+    status: 401
+    rate_limit_headers: none
+  - url: https://dashboard.osmaura.com/v2/prospects
+    method: GET
+    auth: 'bearer (invalid placeholder key)'
+    status: 401
+    rate_limit_headers: none
+  - url: https://dashboard.osmaura.com/v2/prospect-editions
+    method: GET
+    auth: none
+    status: 401
+    rate_limit_headers: none
+  caveat: >-
+    All probes were rejected at the auth layer, so a rate limiter applied only to
+    authenticated traffic would not be visible here. Absence of a documented limit
+    is the stronger finding.
+practical_ceiling:
+  note: >-
+    The natural call volume for this API is very low by design — one edition is
+    published per period, and the docs direct callers to send If-None-Match and
+    take a 304 rather than re-download an unchanged edition. Conditional requests
+    are the provider's substitute for a published rate-limit contract.
+gaps:
+- No published request quota, window, or burst.
+- No 429 response defined in the OpenAPI.
+- No Retry-After or RateLimit-* header contract for an agent to read at runtime.

@@ -1,0 +1,65 @@
+generated: '2026-08-14'
+method: searched
+source: https://dashboard.osmaura.com/signals/docs
+derived_from: openapi/osmaura-prospect-openapi.yml
+versioning:
+  scheme: uri-path
+  current: v2
+  current_spec_version: 2.0.0
+  payload_schema_version: '2.0'
+  previous: v1
+  docs: https://dashboard.osmaura.com/signals/docs#legacy
+  note: >-
+    Version is carried in the URI path (/v2/..., /v1/...) and echoed in every
+    response body as `schema_version`. The OpenAPI info.version is 2.0.0.
+deprecation:
+  policy_url: https://dashboard.osmaura.com/signals/docs#legacy
+  policy_published: true
+  policy_text: >-
+    "GET /v1/signals and GET /v1/signal-editions remain available for existing
+    integrations. New integrations should use version 2, which returns complete
+    prospect dossiers rather than the compact legacy signal shape."
+  machine_readable: true
+  machine_readable_note: >-
+    Both v1 operations carry `deprecated: true` in the published OpenAPI, so the
+    deprecation is discoverable by a machine and not only by reading prose.
+  sunset_header: unknown
+  sunset_date: null
+  rfc8594: false
+  gaps:
+  - No sunset date is published for v1.
+  - No Deprecation or Sunset response header (RFC 8594) is documented or observed.
+  - No general policy stating how much notice a breaking change receives.
+deprecated_operations:
+- openapi/osmaura-prospect-openapi.yml#getLegacySignals
+- openapi/osmaura-prospect-openapi.yml#listLegacySignalEditions
+publication_cadence:
+  unit: edition
+  described_as: >-
+    The API returns dated "editions" rather than a live feed. Each edition has an
+    `edition_date`, a `published_at` timestamp, and a monotonically increasing
+    `revision`, and only explicitly published editions are ever visible — the
+    docs state that drafts and internal review state are never exposed.
+  revision_semantics: >-
+    A republished edition for the same date increments `revision`, which is the
+    provider's mechanism for correcting a already-published edition.
+  history_endpoint: openapi/osmaura-prospect-openapi.yml#listProspectEditions
+  typical_size: 20 prospects per edition (schema caps count at 100)
+sla:
+  url: null
+  uptime_target: null
+  note: No SLA or uptime commitment is published on any public page.
+status_page:
+  url: null
+  probed:
+  - url: https://status.osmaura.com
+    result: NXDOMAIN
+  note: >-
+    No status page exists. status.osmaura.com does not resolve and no status link
+    appears in the docs, dashboard, or marketing site. No StatusPage pointer is
+    emitted.
+changelog:
+  url: null
+  note: >-
+    No dated changelog is published. https://osmaura.com/changelog returns 404 and
+    the API docs carry no release-notes section, so no changelog/ artifact was written.

@@ -1,0 +1,166 @@
+generated: '2026-08-14'
+method: searched
+source: https://dashboard.osmaura.com/signals/docs
+derived_from: openapi/osmaura-prospect-openapi.yml
+summary: >-
+  Osmaura's Prospect API is a small, entirely read-only publication API. Four GET
+  operations (two current, two deprecated v1) return "editions" — a dated,
+  human-reviewed, ranked batch of prospect dossiers scoped to the caller's
+  organization. The defining convention is editorial rather than technical: the
+  response contract deliberately separates source-backed `data` from analyst
+  `analysis`, and every government-derived record must carry an official link and
+  a reproducible record locator.
+authentication:
+  style: bearer-token
+  header: Authorization
+  format: 'Bearer <key>'
+  key_prefix: signals_live_
+  scheme_name: bearerAuth
+  tenancy: >-
+    Keys are scoped to one account and the API infers the account from the key.
+    Requests never carry an organization name or account identifier — there is no
+    tenant path segment or query parameter anywhere in the surface.
+  rotation: >-
+    Self-service in the dashboard under API keys > Rotate. The old key is revoked
+    immediately and the replacement secret is displayed exactly once. Creating an
+    additional key ("Copy API key") leaves existing keys active, which is the
+    documented path for giving an agent its own key.
+  docs: https://dashboard.osmaura.com/signals/docs#authentication
+  artifact: authentication/osmaura-authentication.yml
+idempotency:
+  idempotency_key: false
+  header: null
+  note: >-
+    No idempotency-key contract is published, and none is required: every
+    operation in the surface is a GET and therefore safe and idempotent by HTTP
+    method semantics. There are no write operations to protect. Recorded as
+    absent rather than asserted — no Idempotency pointer is emitted for this
+    provider.
+caching:
+  conditional_requests: true
+  response_header: ETag
+  request_header: If-None-Match
+  not_modified_status: 304
+  cache_control: 'private, max-age=300'
+  note: >-
+    Published responses include an ETag; the docs explicitly instruct callers to
+    send If-None-Match to avoid re-downloading an unchanged edition. Because an
+    edition changes only when a new revision is published, conditional requests
+    are the intended polling pattern for this API.
+pagination:
+  style: none
+  note: >-
+    Not paginated. GET /v2/prospects returns the whole edition inline — a normal
+    edition contains 20 prospects and the schema caps `count` and the `prospects`
+    array at 100. Edition history uses a `limit` parameter (1-90, default 30) to
+    bound the list of dates, not to page through it; there is no cursor, offset,
+    or next-link anywhere in the spec.
+selection:
+  by_date:
+    parameter: date
+    in: query
+    format: YYYY-MM-DD
+    applies_to: [getProspects, getLegacySignals]
+    note: Omit for the latest published edition; supply an ISO date for a historical one.
+  limit:
+    parameter: limit
+    in: query
+    type: integer
+    minimum: 1
+    maximum: 90
+    default: 30
+    applies_to: [listProspectEditions, listLegacySignalEditions]
+field_expansion:
+  supported: false
+  note: >-
+    No expand/fields/sparse-fieldset parameter. Dossiers are always returned
+    complete and inline; there is no shallow representation to expand.
+response_envelope:
+  object_field: object
+  object_value: prospect_edition
+  schema_version_field: schema_version
+  schema_version_value: '2.0'
+  revision_field: revision
+  published_at_field: published_at
+  count_field: count
+  collection_field: prospects
+  strictness: >-
+    Nearly every schema declares additionalProperties false, so the response is a
+    closed contract — consumers can rely on the field set, and the provider must
+    version rather than silently add fields.
+  structure:
+    note: Every prospect item has exactly five top-level fields.
+    fields:
+    - name: id
+      meaning: Stable prospect identifier (observed prefix `sig_`).
+    - name: prospect
+      meaning: Normalized identity only — organization or person, legal names, locations, employment, domain, identifiers.
+    - name: data
+      meaning: Observed records and deterministic statistics organized by source domain (DOL, USCIS, DHS, government-business, company, professional, contact).
+    - name: analysis
+      meaning: Clearly labeled conclusions — rank, scores, summary, dated why-now narrative, scoped counsel assessment, lead factors, counterevidence, recommendations, limitations.
+    - name: coverage
+      meaning: What was checked, source freshness, matched/no-match status, identity warnings, known gaps. Distinguishes zero from unknown from not-checked.
+data_vs_analysis_rule:
+  published: true
+  docs: https://dashboard.osmaura.com/signals/docs#structure
+  rule: >-
+    A filing status, date, attorney field, grant amount, or approval count belongs
+    in `data`. A total calculated from those records is also data when its inputs
+    are named. Statements such as "observed pro se", the lead score, and any
+    explanation of why a fact matters belong only in `analysis`.
+  agent_relevance: >-
+    This is the convention an agent must respect to use the API safely: anything
+    under `analysis` is a model/analyst conclusion, not an observed fact, and the
+    provider states that draft material is never returned.
+provenance_rule:
+  published: true
+  docs: https://dashboard.osmaura.com/signals/docs#sources
+  rule: >-
+    Every government-derived record carries a clickable official page. Bulk
+    datasets also carry the exact downloadable file, the record layout where
+    available, a data-through date, and a locator (e.g. a case number plus the
+    column it appears in). Interactive sources carry the exact query needed to
+    reproduce the result. A bare source code such as `dol_lca` is explicitly
+    never sufficient by itself.
+  counsel_representation: >-
+    Counsel is never represented as a bare boolean. The response reports filings
+    reviewed, filings naming counsel, review scope, confidence, and the standing
+    limitation that public records cannot reveal every private advisory relationship.
+versioning:
+  scheme: uri-path
+  current: v2
+  previous: v1
+  policy: >-
+    v1 (`/v1/signals`, `/v1/signal-editions`) remains available for existing
+    integrations and is marked deprecated:true in the OpenAPI. New integrations
+    should use v2, which returns complete prospect dossiers rather than the
+    compact legacy signal shape. No sunset date is published.
+  payload_version: schema_version ('2.0') is echoed inside every response body.
+  docs: https://dashboard.osmaura.com/signals/docs#legacy
+  artifact: lifecycle/osmaura-lifecycle.yml
+request_tracing:
+  provider_header: null
+  edge_headers:
+  - x-railway-request-id
+  - x-railway-edge
+  - x-hikari-trace
+  note: >-
+    Observed on live responses 2026-08-14. These are Railway edge headers, not a
+    documented Osmaura correlation id — treat them as infrastructure detail that
+    may change, not as a supported tracing contract.
+rate_limiting:
+  documented: false
+  headers_observed: []
+  artifact: rate-limits/osmaura-rate-limits.yml
+errors:
+  format: custom-json
+  rfc9457: false
+  envelope: error.code + error.message
+  artifact: errors/osmaura-problem-types.yml
+cross_links:
+  authentication: authentication/osmaura-authentication.yml
+  errors: errors/osmaura-problem-types.yml
+  lifecycle: lifecycle/osmaura-lifecycle.yml
+  rate_limits: rate-limits/osmaura-rate-limits.yml
+  data_model: data-model/osmaura-data-model.yml

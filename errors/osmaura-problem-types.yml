@@ -1,0 +1,78 @@
+generated: '2026-08-14'
+method: searched
+source: https://dashboard.osmaura.com/signals/docs#errors
+derived_from: openapi/osmaura-prospect-openapi.yml
+format: custom-json
+note: >-
+  Osmaura does NOT use RFC 9457 application/problem+json. Every error is returned
+  as application/json carrying a single, closed envelope object. The envelope is
+  declared in the OpenAPI as components/schemas/Error with additionalProperties
+  false at both levels, so the shape is fixed: an `error` object with exactly a
+  string `code` and a string `message`. Statuses and meanings below are published
+  in the provider's own error table; the `code` values are only partially
+  published — `unauthorized` and `not_found` were observed/published verbatim,
+  the rest are left null rather than guessed.
+envelope:
+  media_type: application/json
+  shape: |
+    {
+      "error": {
+        "code": "string",
+        "message": "string"
+      }
+    }
+  fields:
+  - name: error.code
+    type: string
+    required: true
+    description: Stable machine-readable error identifier.
+  - name: error.message
+    type: string
+    required: true
+    description: Human-readable explanation.
+  additional_properties: false
+problems:
+- status: 400
+  code: null
+  title: Invalid request
+  detail: The date or another request value is invalid.
+  remediation: >-
+    Send `date` as YYYY-MM-DD and keep `limit` between 1 and 90.
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+- status: 401
+  code: unauthorized
+  title: Missing, invalid, or revoked API key
+  detail: A valid API key or dashboard session is required.
+  remediation: >-
+    Send `Authorization: Bearer <signals_live_...>`. If the key was rotated in the
+    dashboard the previous key is revoked immediately and must be replaced.
+  observed: true
+  observed_at: '2026-08-14'
+  observed_body: '{"error":{"code":"unauthorized","message":"A valid API key or dashboard session is required."}}'
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+- status: 402
+  code: null
+  title: Subscription required
+  detail: An active organization subscription is required; the organization does not currently have API access.
+  remediation: Activate an organization plan through the dashboard's Stripe checkout.
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+- status: 404
+  code: not_found
+  title: No published edition exists for the requested date
+  detail: No published signal edition was found.
+  remediation: >-
+    Call GET /v2/prospect-editions to list the edition dates that actually exist,
+    then request one of those dates. Drafts and unpublished editions are never visible.
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+- status: 503
+  code: null
+  title: Account-access verification temporarily unavailable
+  detail: The account-access check could not be completed.
+  remediation: Retry with backoff; this is a transient upstream verification failure, not an auth failure.
+  source_operation: openapi/osmaura-prospect-openapi.yml#getProspects
+non_error_statuses:
+- status: 304
+  title: Not Modified
+  detail: >-
+    Returned when If-None-Match matches the current edition ETag. This is the
+    provider's documented mechanism for avoiding a re-download of an unchanged edition.

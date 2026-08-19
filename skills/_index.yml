@@ -1,0 +1,24 @@
+generated: '2026-08-14'
+method: generated
+source: >-
+  openapi/osmaura-prospect-openapi.yml + https://dashboard.osmaura.com/signals/docs
+note: >-
+  Searched first for provider-published skills or an AGENTS.md — none exist. These
+  are API Evangelist-authored operating instructions, every step grounded in an
+  operationId verified present in the harvested spec. The API's whole surface is
+  read-only, so both skills are retrieval flows rather than transactional ones.
+skills:
+- file: osmaura-retrieve-prospect-edition.md
+  name: Retrieve the latest Osmaura prospect edition
+  description: >-
+    Fetch and correctly interpret the current published prospect edition, keeping
+    observed records separate from analyst conclusions.
+  api: openapi/osmaura-prospect-openapi.yml
+  operations: [getProspects, listProspectEditions]
+- file: osmaura-track-new-editions.md
+  name: Track new Osmaura editions and diff them
+  description: >-
+    Poll edition history and ETags to detect new editions and revisions, then diff
+    dossiers on stable id to surface only what actually changed.
+  api: openapi/osmaura-prospect-openapi.yml
+  operations: [listProspectEditions, getProspects]

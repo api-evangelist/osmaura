@@ -1,0 +1,44 @@
+generated: '2026-08-14'
+method: searched
+source: public package registries + https://dashboard.osmaura.com/signals/docs
+package_count: 0
+official_sdk_count: 0
+packages: []
+note: >-
+  Osmaura ships no client libraries. The documentation's only integration example
+  is a raw curl call, there is no SDK or Libraries section anywhere in the docs,
+  and no Osmaura GitHub organization exists to host one. Recorded as a verified
+  zero — no SDKs pointer is emitted, because there is no first-party client
+  library for the sdk_count check to count.
+searched:
+- registry: npm
+  query: osmaura
+  endpoint: https://registry.npmjs.org/osmaura
+  status: 404
+  results: 0
+  search_endpoint: https://registry.npmjs.org/-/v1/search?text=osmaura
+  search_results: 0
+- registry: pypi
+  query: osmaura
+  endpoint: https://pypi.org/pypi/osmaura/json
+  status: 404
+  results: 0
+- registry: github
+  query: org osmaura
+  endpoint: https://api.github.com/orgs/osmaura
+  status: 404
+  results: 0
+  note: >-
+    A repository search for "osmaura" returns exactly one result — this API
+    Evangelist profile repository — and no code owned by the company.
+- registry: docs
+  query: SDK / client library / install
+  endpoint: https://dashboard.osmaura.com/signals/docs
+  status: 200
+  results: 0
+  note: Quickstart is a single curl command; no package manager install line is published.
+not_searched_reason: >-
+  Maven Central, NuGet, pkg.go.dev, RubyGems, Packagist and crates.io were not
+  queried individually — the provider publishes no SDK section and no GitHub
+  organization exists, so there is no first-party artifact for those registries to
+  hold. Recorded so a later pass knows the gap is reasoned, not overlooked.

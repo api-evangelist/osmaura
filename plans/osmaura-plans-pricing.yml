@@ -1,0 +1,52 @@
+generated: '2026-08-14'
+method: searched
+source: https://dashboard.osmaura.com/
+note: >-
+  Osmaura publishes no pricing page on its marketing site (https://osmaura.com/pricing
+  returns 404). The one published price sits on the dashboard's organization-access
+  screen, which is reachable anonymously at https://dashboard.osmaura.com/ before
+  sign-in, and is captured verbatim below. Checkout is hosted by Stripe.
+plan_count: 1
+currency: USD
+plans:
+- name: Organization access
+  price: 1000
+  currency: USD
+  billing_period: month
+  price_display: '$1,000 / month'
+  public: true
+  self_serve: true
+  checkout: Stripe-hosted checkout, initiated from the dashboard.
+  included:
+  - '20 private, enriched signals per edition'
+  - Organization-wide dashboard access
+  - Production API access and delivery history
+  quota:
+    unit: signals per edition
+    included: 20
+    note: >-
+      Matches the API contract — the docs state a normal edition contains 20
+      prospects, and the OpenAPI caps an edition's `count` at 100.
+  overage: null
+  overage_note: No overage, metered, or per-call pricing is published.
+  limits:
+    api_access: true
+    api_access_note: >-
+      API access is gated on an active plan. An organization without one receives
+      HTTP 402 "An active organization subscription is required" from every
+      operation (see errors/osmaura-problem-types.yml).
+    seats: unlimited-within-organization
+    seats_note: Described as "organization-wide dashboard access"; no per-seat price is published.
+  sign_up: https://cal.com/osmaura-ycs26/intro-meeting
+  sign_up_note: >-
+    Access begins with a private invitation link, not open self-signup. The docs
+    say "Open your private invitation link, create your profile, and save the
+    production API key shown during setup." The public entry point is a booked
+    intro call.
+free_tier: false
+trial: false
+enterprise_contact_only: false
+gaps:
+- No pricing page on the marketing site.
+- No annual price, no per-call or metered tier, no published overage rate.
+- No published API rate limits attached to the plan (see rate-limits/osmaura-rate-limits.yml).

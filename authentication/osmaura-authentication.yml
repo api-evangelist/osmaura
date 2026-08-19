@@ -1,0 +1,14 @@
+generated: '2026-08-14'
+method: derived
+source: openapi/osmaura-prospect-openapi.yml
+summary:
+  types:
+  - http
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: API key
+  description: Tenant-scoped production read key.
+  sources:
+  - openapi/osmaura-prospect-openapi.yml
