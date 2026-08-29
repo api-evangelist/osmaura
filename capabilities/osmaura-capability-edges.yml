@@ -1,0 +1,26 @@
+slug: osmaura
+provider: Osmaura
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Public Sector & Government
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Prospects
+  spec_file: osmaura-prospects-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: GET /v2/prospects getProspects "Get a published prospect edition"; schemas ProspectDossier,
+    WhyNow, RecommendedApproach, Scores, Ranking, ContactChannel
+  reason: Operations return scored, ranked prospect dossiers with a recommended approach and contact channels
+    — this is lead/prospect qualification for a firm's business-development pipeline, not a government-sector
+    capability, despite the government-record data sources.

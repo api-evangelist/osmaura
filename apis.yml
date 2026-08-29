@@ -142,6 +142,9 @@ apis:
   - type: GettingStarted
     url: https://dashboard.osmaura.com/signals/docs#quickstart
 common:
+- type: CapabilityMap
+  url: capabilities/osmaura-capability-edges.yml
+  name: Osmaura Business Capability Map
 - type: Overlay
   url: overlays/osmaura-prospect-overlay.yaml
 - type: AgenticAccess
