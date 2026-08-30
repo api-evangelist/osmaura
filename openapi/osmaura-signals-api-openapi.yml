@@ -1,0 +1,179 @@
+openapi: 3.2.0
+info:
+  title: Osmaura Prospect Signals API
+  version: 2.0.0
+  description: Retrieve tenant-scoped, human-reviewed prospect editions. Version 2 keeps source-backed data separate from analyst conclusions and includes source coverage, official links, and reproducible record locators. Only explicitly published editions are visible.
+servers:
+- url: https://dashboard.osmaura.com
+security:
+- bearerAuth: []
+tags:
+- name: Signals
+paths:
+  /v1/signals:
+    get:
+      deprecated: true
+      operationId: getLegacySignals
+      summary: Get a compact legacy signal edition
+      description: Existing integrations may continue using this endpoint.
+      parameters:
+      - $ref: '#/components/parameters/EditionDate'
+      - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Published compact signal edition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyEdition'
+        '304':
+          description: The edition has not changed.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/SubscriptionRequired'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      tags:
+      - Signals
+components:
+  parameters:
+    EditionDate:
+      name: date
+      in: query
+      required: false
+      description: Edition date in YYYY-MM-DD format.
+      schema:
+        type: string
+        format: date
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+  responses:
+    SubscriptionRequired:
+      description: An active organization subscription is required.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing, invalid, or revoked API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No published edition exists for the requested date.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unavailable:
+      description: Account-access verification is temporarily unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+    LegacyEdition:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - edition_date
+      - revision
+      - published_at
+      - count
+      - signals
+      properties:
+        object:
+          type: string
+          const: signal_edition
+        edition_date:
+          type: string
+          format: date
+        revision:
+          type: integer
+          minimum: 1
+        published_at:
+          type: string
+          format: date-time
+        count:
+          type: integer
+          minimum: 1
+          maximum: 100
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegacySignal'
+    LegacySignal:
+      type: object
+      additionalProperties: true
+      required:
+      - id
+      - rank
+      - type
+      - company
+      - rationale
+      - contacts
+      - evidence
+      properties:
+        id:
+          type: string
+        rank:
+          type: integer
+          minimum: 1
+        type:
+          type: string
+        company:
+          type: object
+          additionalProperties: true
+        rationale:
+          type: object
+          additionalProperties: true
+        contacts:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        evidence:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key
+      description: Tenant-scoped production read key.

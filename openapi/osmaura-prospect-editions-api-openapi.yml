@@ -1,0 +1,117 @@
+openapi: 3.2.0
+info:
+  title: Osmaura Prospect Prospect Editions API
+  version: 2.0.0
+  description: Retrieve tenant-scoped, human-reviewed prospect editions. Version 2 keeps source-backed data separate from analyst conclusions and includes source coverage, official links, and reproducible record locators. Only explicitly published editions are visible.
+servers:
+- url: https://dashboard.osmaura.com
+security:
+- bearerAuth: []
+tags:
+- name: Prospect Editions
+paths:
+  /v2/prospect-editions:
+    get:
+      operationId: listProspectEditions
+      summary: List published prospect-edition history
+      parameters:
+      - $ref: '#/components/parameters/EditionLimit'
+      responses:
+        '200':
+          description: Published editions, newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - editions
+                properties:
+                  editions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EditionSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/SubscriptionRequired'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      tags:
+      - Prospect Editions
+components:
+  responses:
+    Unauthorized:
+      description: Missing, invalid, or revoked API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    SubscriptionRequired:
+      description: An active organization subscription is required.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unavailable:
+      description: Account-access verification is temporarily unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    EditionSummary:
+      type: object
+      additionalProperties: false
+      required:
+      - edition_date
+      - published_at
+      - revision
+      - count
+      properties:
+        edition_date:
+          type: string
+          format: date
+        published_at:
+          type: string
+          format: date-time
+        revision:
+          type: integer
+          minimum: 1
+        count:
+          type: integer
+          minimum: 1
+          maximum: 100
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+  parameters:
+    EditionLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 90
+        default: 30
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API key
+      description: Tenant-scoped production read key.
