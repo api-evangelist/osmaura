@@ -1,0 +1,36 @@
+{
+  "provider": "osmaura",
+  "sources": [
+    "_original/osmaura-prospect-openapi-original.yml"
+  ],
+  "outputs": [
+    "osmaura-prospect-editions-api-openapi.yml",
+    "osmaura-prospects-api-openapi.yml",
+    "osmaura-signal-editions-api-openapi.yml",
+    "osmaura-signals-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "osmaura-prospect-openapi-original.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "osmaura-prospect-openapi-original.yml: tagged paths GET /v2/prospects -> Prospects",
+    "osmaura-prospect-openapi-original.yml: tagged paths GET /v2/prospect-editions -> Prospect Editions",
+    "osmaura-prospect-openapi-original.yml: tagged paths GET /v1/signals -> Signals",
+    "osmaura-prospect-openapi-original.yml: tagged paths GET /v1/signal-editions -> Signal Editions",
+    "osmaura-prospect-openapi-original.yml: declared missing tag: Prospect Editions",
+    "osmaura-prospect-openapi-original.yml: declared missing tag: Prospects",
+    "osmaura-prospect-openapi-original.yml: declared missing tag: Signal Editions",
+    "osmaura-prospect-openapi-original.yml: declared missing tag: Signals",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "_original/osmaura-prospect-openapi.yml: archived document superseded by a larger archived document",
+    "osmaura-prospect-editions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "osmaura-prospects-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "osmaura-signal-editions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "osmaura-signals-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

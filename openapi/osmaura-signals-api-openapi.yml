@@ -41,36 +41,9 @@ paths:
       tags:
       - Signals
 components:
-  parameters:
-    EditionDate:
-      name: date
-      in: query
-      required: false
-      description: Edition date in YYYY-MM-DD format.
-      schema:
-        type: string
-        format: date
-    IfNoneMatch:
-      name: If-None-Match
-      in: header
-      required: false
-      schema:
-        type: string
   responses:
-    SubscriptionRequired:
-      description: An active organization subscription is required.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Missing, invalid, or revoked API key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: No published edition exists for the requested date.
       content:
         application/json:
           schema:
@@ -81,8 +54,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    SubscriptionRequired:
+      description: An active organization subscription is required.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     BadRequest:
       description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No published edition exists for the requested date.
       content:
         application/json:
           schema:
@@ -171,6 +156,21 @@ components:
           items:
             type: object
             additionalProperties: true
+  parameters:
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+    EditionDate:
+      name: date
+      in: query
+      required: false
+      description: Edition date in YYYY-MM-DD format.
+      schema:
+        type: string
+        format: date
   securitySchemes:
     bearerAuth:
       type: http

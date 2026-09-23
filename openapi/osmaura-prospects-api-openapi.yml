@@ -49,88 +49,6 @@ paths:
       - Prospects
 components:
   schemas:
-    RecommendedApproach:
-      type: object
-      additionalProperties: false
-      required:
-      - narrative
-      - recommended_contact_id
-      properties:
-        narrative:
-          type: string
-          minLength: 1
-        recommended_contact_id:
-          type:
-          - string
-          - 'null'
-    WhyNow:
-      type: object
-      additionalProperties: false
-      required:
-      - narrative
-      - trigger_date
-      - urgency_window
-      - evidence_ids
-      properties:
-        narrative:
-          type: string
-          minLength: 1
-        trigger_date:
-          type:
-          - string
-          - 'null'
-          format: date
-        urgency_window:
-          type: string
-          minLength: 1
-        evidence_ids:
-          type: array
-          items:
-            type: string
-    FactualRecord:
-      type: object
-      additionalProperties: true
-      required:
-      - id
-      - source
-      properties:
-        id:
-          type: string
-          minLength: 1
-        source:
-          $ref: '#/components/schemas/Source'
-    Coverage:
-      type: object
-      additionalProperties: false
-      required:
-      - generated_at
-      - data_through
-      - sources
-      - identity_warnings
-      - known_gaps
-      properties:
-        generated_at:
-          type: string
-          format: date-time
-        data_through:
-          type: string
-          format: date
-        sources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceCoverage'
-        identity_warnings:
-          type: array
-          items:
-            type: string
-        known_gaps:
-          type: array
-          items:
-            type: string
-    FactualRecordArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/FactualRecord'
     Error:
       type: object
       additionalProperties: false
@@ -148,113 +66,83 @@ components:
               type: string
             message:
               type: string
-    ProspectDossier:
+    ProspectData:
+      type: object
+      description: Source data and deterministic statistics grouped by real-world domain. Empty arrays do not imply a checked no-match; consult coverage.sources.
+      additionalProperties: true
+      required:
+      - dol_oflc
+      - uscis
+      - dhs
+      - government_business
+      - company
+      - contacts
+      properties:
+        dol_oflc:
+          $ref: '#/components/schemas/DolData'
+        uscis:
+          type: object
+          additionalProperties: true
+          required:
+          - h1b_employer_hub
+          properties:
+            h1b_employer_hub:
+              $ref: '#/components/schemas/DataCollection'
+        dhs:
+          type: object
+          additionalProperties: true
+          required:
+          - everify
+          properties:
+            everify:
+              $ref: '#/components/schemas/DataCollection'
+        government_business:
+          $ref: '#/components/schemas/GovernmentBusinessData'
+        company:
+          $ref: '#/components/schemas/CompanyData'
+        professional:
+          $ref: '#/components/schemas/ProfessionalData'
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+    RecommendedApproach:
       type: object
       additionalProperties: false
-      description: The five-field prospect contract. Observed facts and deterministic statistics live under data; interpretation lives under analysis.
       required:
-      - id
-      - prospect
-      - data
-      - analysis
-      - coverage
+      - narrative
+      - recommended_contact_id
       properties:
-        id:
+        narrative:
           type: string
           minLength: 1
-        prospect:
-          $ref: '#/components/schemas/ProspectIdentity'
-        data:
-          $ref: '#/components/schemas/ProspectData'
-        analysis:
-          $ref: '#/components/schemas/ProspectAnalysis'
-        coverage:
-          $ref: '#/components/schemas/Coverage'
-    ProspectEdition:
-      type: object
-      additionalProperties: false
-      required:
-      - object
-      - schema_version
-      - edition_date
-      - revision
-      - published_at
-      - count
-      - prospects
-      properties:
-        object:
-          type: string
-          const: prospect_edition
-        schema_version:
-          type: string
-          const: '2.0'
-        edition_date:
-          type: string
-          format: date
-        revision:
-          type: integer
-          minimum: 1
-        published_at:
-          type: string
-          format: date-time
-        count:
-          type: integer
-          minimum: 1
-          maximum: 100
-        prospects:
-          type: array
-          minItems: 1
-          maxItems: 100
-          items:
-            $ref: '#/components/schemas/ProspectDossier'
-    Dataset:
-      type: object
-      additionalProperties: false
-      required:
-      - filename
-      - download_url
-      - record_layout_url
-      - data_through
-      properties:
-        filename:
+        recommended_contact_id:
           type:
           - string
           - 'null'
-        download_url:
-          type:
-          - string
-          - 'null'
-          format: uri
-        record_layout_url:
-          type:
-          - string
-          - 'null'
-          format: uri
-        data_through:
-          type:
-          - string
-          - 'null'
-          format: date
-    GovernmentBusinessData:
+    FactualRecordArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/FactualRecord'
+    DataCollection:
       type: object
       additionalProperties: true
+      description: A source-specific record collection and its deterministic aggregates.
       properties:
-        sec_filings:
-          $ref: '#/components/schemas/FactualRecordArray'
-        contracts:
-          $ref: '#/components/schemas/FactualRecordArray'
-        grants:
-          $ref: '#/components/schemas/FactualRecordArray'
-        trademarks:
-          $ref: '#/components/schemas/FactualRecordArray'
-        corporate_records:
-          $ref: '#/components/schemas/FactualRecordArray'
-        regulatory_records:
-          $ref: '#/components/schemas/FactualRecordArray'
-        warn_notices:
-          $ref: '#/components/schemas/FactualRecordArray'
-        enforcement:
-          $ref: '#/components/schemas/FactualRecordArray'
+        statistics:
+          type: object
+          additionalProperties: true
+        by_fiscal_year:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/FactualRecord'
+        source:
+          $ref: '#/components/schemas/Source'
     ProspectIdentity:
       type: object
       additionalProperties: false
@@ -294,145 +182,63 @@ components:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/CurrentEmployment'
-    ContactChannel:
+    AnalysisFinding:
       type: object
       additionalProperties: false
       required:
-      - type
-      - value
-      - source_url
-      - as_of
-      - current_status
-      - outreach_suitability
-      - consent_status
-      - suppression_reason
+      - finding
+      - effect_on_lead
+      - explanation
+      - strength
+      - evidence_ids
       properties:
-        type:
-          enum:
-          - email
-          - phone
-          - linkedin
-          - github
-          - company_form
-          - other
-        value:
-          type:
-          - string
-          - 'null'
-        source_url:
-          type:
-          - string
-          - 'null'
-          format: uri
-        as_of:
-          type:
-          - string
-          - 'null'
-          format: date
-        current_status:
-          enum:
-          - verified_current
-          - verified_historical
-          - unverified
-          - unknown
-        outreach_suitability:
-          enum:
-          - ready
-          - permission_first
-          - identity_only
-          - suppress
-        consent_status:
-          enum:
-          - consented
-          - unknown
-          - not_applicable
-          - opted_out
-        suppression_reason:
-          type:
-          - string
-          - 'null'
-    DolData:
-      type: object
-      additionalProperties: true
-      required:
-      - lca
-      - perm
-      - pwd
-      properties:
-        lca:
-          $ref: '#/components/schemas/DataCollection'
-        perm:
-          $ref: '#/components/schemas/DataCollection'
-        pwd:
-          $ref: '#/components/schemas/DataCollection'
-    Ranking:
-      type: object
-      additionalProperties: false
-      required:
-      - rank
-      - disposition
-      - disposition_reason
-      - scores
-      - confidence
-      properties:
-        rank:
-          type: integer
-          minimum: 1
-        disposition:
-          enum:
-          - qualified
-          - nurture
-          - monitor
-          - suppress
-        disposition_reason:
+        finding:
           type: string
           minLength: 1
-        scores:
-          $ref: '#/components/schemas/Scores'
-        confidence:
-          type: number
-          minimum: 0
-          maximum: 1
-    CurrentEmployment:
+        effect_on_lead:
+          enum:
+          - supports
+          - weakens
+          - limits_inference
+          - context
+        explanation:
+          type: string
+          minLength: 1
+        strength:
+          enum:
+          - strong
+          - moderate
+          - weak
+          - contextual
+        evidence_ids:
+          type: array
+          items:
+            type: string
+    ProfessionalData:
       type: object
-      additionalProperties: false
-      required:
-      - employer
-      - role
-      - location
+      additionalProperties: true
+      description: Present for person prospects when relevant.
       properties:
-        employer:
-          type:
-          - string
-          - 'null'
-        role:
-          type:
-          - string
-          - 'null'
-        location:
-          type:
-          - string
-          - 'null'
-    Location:
-      type: object
-      additionalProperties: false
-      required:
-      - city
-      - state
-      - country
-      properties:
-        city:
-          type:
-          - string
-          - 'null'
-        state:
-          type:
-          - string
-          - 'null'
-        country:
-          type:
-          - string
-          - 'null'
+        employment:
+          $ref: '#/components/schemas/FactualRecordArray'
+        education:
+          $ref: '#/components/schemas/FactualRecordArray'
+        publications:
+          $ref: '#/components/schemas/FactualRecordArray'
+        patents:
+          $ref: '#/components/schemas/FactualRecordArray'
+        open_source:
+          $ref: '#/components/schemas/FactualRecordArray'
+        awards:
+          $ref: '#/components/schemas/FactualRecordArray'
+        judging_and_review:
+          $ref: '#/components/schemas/FactualRecordArray'
+        standards:
+          $ref: '#/components/schemas/FactualRecordArray'
+        speaking:
+          $ref: '#/components/schemas/FactualRecordArray'
+        media:
+          $ref: '#/components/schemas/FactualRecordArray'
     SourceCoverage:
       type: object
       additionalProperties: false
@@ -477,45 +283,58 @@ components:
           type: array
           items:
             type: string
-    Scores:
+    Dataset:
       type: object
       additionalProperties: false
       required:
-      - evidence_strength
-      - why_now_strength
-      - commercial_readiness
-      - counsel_opportunity
-      - mobility_intent
-      - overall_rank
+      - filename
+      - download_url
+      - record_layout_url
+      - data_through
       properties:
-        evidence_strength:
-          type: number
-          minimum: 0
-          maximum: 100
-        why_now_strength:
-          type: number
-          minimum: 0
-          maximum: 100
-        commercial_readiness:
-          type: number
-          minimum: 0
-          maximum: 100
-        counsel_opportunity:
+        filename:
           type:
-          - number
+          - string
           - 'null'
-          minimum: 0
-          maximum: 100
-        mobility_intent:
+        download_url:
           type:
-          - number
+          - string
           - 'null'
-          minimum: 0
-          maximum: 100
-        overall_rank:
-          type: number
-          minimum: 0
-          maximum: 100
+          format: uri
+        record_layout_url:
+          type:
+          - string
+          - 'null'
+          format: uri
+        data_through:
+          type:
+          - string
+          - 'null'
+          format: date
+    WhyNow:
+      type: object
+      additionalProperties: false
+      required:
+      - narrative
+      - trigger_date
+      - urgency_window
+      - evidence_ids
+      properties:
+        narrative:
+          type: string
+          minLength: 1
+        trigger_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        urgency_window:
+          type: string
+          minLength: 1
+        evidence_ids:
+          type: array
+          items:
+            type: string
     CompanyData:
       type: object
       additionalProperties: true
@@ -530,6 +349,26 @@ components:
           $ref: '#/components/schemas/FactualRecordArray'
         reported_metrics:
           $ref: '#/components/schemas/FactualRecordArray'
+    CurrentEmployment:
+      type: object
+      additionalProperties: false
+      required:
+      - employer
+      - role
+      - location
+      properties:
+        employer:
+          type:
+          - string
+          - 'null'
+        role:
+          type:
+          - string
+          - 'null'
+        location:
+          type:
+          - string
+          - 'null'
     Source:
       type: object
       additionalProperties: true
@@ -555,54 +394,6 @@ components:
         retrieved_at:
           type: string
           format: date-time
-    CounselAnalysis:
-      type: object
-      additionalProperties: false
-      required:
-      - classification
-      - narrative
-      - scope
-      - filings_reviewed
-      - named_counsel_filings
-      - confidence
-      - evidence_ids
-      - caveat
-      properties:
-        classification:
-          enum:
-          - observed_pro_se
-          - no_named_counsel
-          - incumbent_identified
-          - fragmented_or_transitioning
-          - possible_undisclosed_adviser
-          - unknown
-          - not_applicable
-        narrative:
-          type: string
-          minLength: 1
-        scope:
-          $ref: '#/components/schemas/CounselScope'
-        filings_reviewed:
-          type:
-          - integer
-          - 'null'
-          minimum: 0
-        named_counsel_filings:
-          type:
-          - integer
-          - 'null'
-          minimum: 0
-        confidence:
-          type: number
-          minimum: 0
-          maximum: 1
-        evidence_ids:
-          type: array
-          items:
-            type: string
-        caveat:
-          type: string
-          minLength: 1
     EvidenceAccounting:
       type: object
       additionalProperties: false
@@ -633,147 +424,18 @@ components:
           type: array
           items:
             type: string
-    DataCollection:
+    FactualRecord:
       type: object
       additionalProperties: true
-      description: A source-specific record collection and its deterministic aggregates.
-      properties:
-        statistics:
-          type: object
-          additionalProperties: true
-        by_fiscal_year:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
-        records:
-          type: array
-          items:
-            $ref: '#/components/schemas/FactualRecord'
-        source:
-          $ref: '#/components/schemas/Source'
-    Contact:
-      type: object
-      additionalProperties: false
       required:
       - id
-      - name
-      - role
-      - channels
-      - evidence_ids
+      - source
       properties:
         id:
           type: string
           minLength: 1
-        name:
-          type: string
-          minLength: 1
-        role:
-          type:
-          - string
-          - 'null'
-        channels:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContactChannel'
-        evidence_ids:
-          type: array
-          items:
-            type: string
-    AnalysisFinding:
-      type: object
-      additionalProperties: false
-      required:
-      - finding
-      - effect_on_lead
-      - explanation
-      - strength
-      - evidence_ids
-      properties:
-        finding:
-          type: string
-          minLength: 1
-        effect_on_lead:
-          enum:
-          - supports
-          - weakens
-          - limits_inference
-          - context
-        explanation:
-          type: string
-          minLength: 1
-        strength:
-          enum:
-          - strong
-          - moderate
-          - weak
-          - contextual
-        evidence_ids:
-          type: array
-          items:
-            type: string
-    CounselScope:
-      type: object
-      additionalProperties: false
-      required:
-      - programs
-      - from
-      - through
-      properties:
-        programs:
-          type: array
-          items:
-            type: string
-        from:
-          type:
-          - string
-          - 'null'
-          format: date
-        through:
-          type:
-          - string
-          - 'null'
-          format: date
-    ProspectData:
-      type: object
-      description: Source data and deterministic statistics grouped by real-world domain. Empty arrays do not imply a checked no-match; consult coverage.sources.
-      additionalProperties: true
-      required:
-      - dol_oflc
-      - uscis
-      - dhs
-      - government_business
-      - company
-      - contacts
-      properties:
-        dol_oflc:
-          $ref: '#/components/schemas/DolData'
-        uscis:
-          type: object
-          additionalProperties: true
-          required:
-          - h1b_employer_hub
-          properties:
-            h1b_employer_hub:
-              $ref: '#/components/schemas/DataCollection'
-        dhs:
-          type: object
-          additionalProperties: true
-          required:
-          - everify
-          properties:
-            everify:
-              $ref: '#/components/schemas/DataCollection'
-        government_business:
-          $ref: '#/components/schemas/GovernmentBusinessData'
-        company:
-          $ref: '#/components/schemas/CompanyData'
-        professional:
-          $ref: '#/components/schemas/ProfessionalData'
-        contacts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Contact'
+        source:
+          $ref: '#/components/schemas/Source'
     ProspectAnalysis:
       type: object
       additionalProperties: false
@@ -832,34 +494,393 @@ components:
             type: string
         evidence_accounting:
           $ref: '#/components/schemas/EvidenceAccounting'
-    ProfessionalData:
+    Ranking:
+      type: object
+      additionalProperties: false
+      required:
+      - rank
+      - disposition
+      - disposition_reason
+      - scores
+      - confidence
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+        disposition:
+          enum:
+          - qualified
+          - nurture
+          - monitor
+          - suppress
+        disposition_reason:
+          type: string
+          minLength: 1
+        scores:
+          $ref: '#/components/schemas/Scores'
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+    CounselAnalysis:
+      type: object
+      additionalProperties: false
+      required:
+      - classification
+      - narrative
+      - scope
+      - filings_reviewed
+      - named_counsel_filings
+      - confidence
+      - evidence_ids
+      - caveat
+      properties:
+        classification:
+          enum:
+          - observed_pro_se
+          - no_named_counsel
+          - incumbent_identified
+          - fragmented_or_transitioning
+          - possible_undisclosed_adviser
+          - unknown
+          - not_applicable
+        narrative:
+          type: string
+          minLength: 1
+        scope:
+          $ref: '#/components/schemas/CounselScope'
+        filings_reviewed:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        named_counsel_filings:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        evidence_ids:
+          type: array
+          items:
+            type: string
+        caveat:
+          type: string
+          minLength: 1
+    CounselScope:
+      type: object
+      additionalProperties: false
+      required:
+      - programs
+      - from
+      - through
+      properties:
+        programs:
+          type: array
+          items:
+            type: string
+        from:
+          type:
+          - string
+          - 'null'
+          format: date
+        through:
+          type:
+          - string
+          - 'null'
+          format: date
+    Contact:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - role
+      - channels
+      - evidence_ids
+      properties:
+        id:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        role:
+          type:
+          - string
+          - 'null'
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactChannel'
+        evidence_ids:
+          type: array
+          items:
+            type: string
+    Location:
+      type: object
+      additionalProperties: false
+      required:
+      - city
+      - state
+      - country
+      properties:
+        city:
+          type:
+          - string
+          - 'null'
+        state:
+          type:
+          - string
+          - 'null'
+        country:
+          type:
+          - string
+          - 'null'
+    Scores:
+      type: object
+      additionalProperties: false
+      required:
+      - evidence_strength
+      - why_now_strength
+      - commercial_readiness
+      - counsel_opportunity
+      - mobility_intent
+      - overall_rank
+      properties:
+        evidence_strength:
+          type: number
+          minimum: 0
+          maximum: 100
+        why_now_strength:
+          type: number
+          minimum: 0
+          maximum: 100
+        commercial_readiness:
+          type: number
+          minimum: 0
+          maximum: 100
+        counsel_opportunity:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 100
+        mobility_intent:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 100
+        overall_rank:
+          type: number
+          minimum: 0
+          maximum: 100
+    GovernmentBusinessData:
       type: object
       additionalProperties: true
-      description: Present for person prospects when relevant.
       properties:
-        employment:
+        sec_filings:
           $ref: '#/components/schemas/FactualRecordArray'
-        education:
+        contracts:
           $ref: '#/components/schemas/FactualRecordArray'
-        publications:
+        grants:
           $ref: '#/components/schemas/FactualRecordArray'
-        patents:
+        trademarks:
           $ref: '#/components/schemas/FactualRecordArray'
-        open_source:
+        corporate_records:
           $ref: '#/components/schemas/FactualRecordArray'
-        awards:
+        regulatory_records:
           $ref: '#/components/schemas/FactualRecordArray'
-        judging_and_review:
+        warn_notices:
           $ref: '#/components/schemas/FactualRecordArray'
-        standards:
+        enforcement:
           $ref: '#/components/schemas/FactualRecordArray'
-        speaking:
-          $ref: '#/components/schemas/FactualRecordArray'
-        media:
-          $ref: '#/components/schemas/FactualRecordArray'
+    ProspectDossier:
+      type: object
+      additionalProperties: false
+      description: The five-field prospect contract. Observed facts and deterministic statistics live under data; interpretation lives under analysis.
+      required:
+      - id
+      - prospect
+      - data
+      - analysis
+      - coverage
+      properties:
+        id:
+          type: string
+          minLength: 1
+        prospect:
+          $ref: '#/components/schemas/ProspectIdentity'
+        data:
+          $ref: '#/components/schemas/ProspectData'
+        analysis:
+          $ref: '#/components/schemas/ProspectAnalysis'
+        coverage:
+          $ref: '#/components/schemas/Coverage'
+    Coverage:
+      type: object
+      additionalProperties: false
+      required:
+      - generated_at
+      - data_through
+      - sources
+      - identity_warnings
+      - known_gaps
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        data_through:
+          type: string
+          format: date
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SourceCoverage'
+        identity_warnings:
+          type: array
+          items:
+            type: string
+        known_gaps:
+          type: array
+          items:
+            type: string
+    DolData:
+      type: object
+      additionalProperties: true
+      required:
+      - lca
+      - perm
+      - pwd
+      properties:
+        lca:
+          $ref: '#/components/schemas/DataCollection'
+        perm:
+          $ref: '#/components/schemas/DataCollection'
+        pwd:
+          $ref: '#/components/schemas/DataCollection'
+    ContactChannel:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - value
+      - source_url
+      - as_of
+      - current_status
+      - outreach_suitability
+      - consent_status
+      - suppression_reason
+      properties:
+        type:
+          enum:
+          - email
+          - phone
+          - linkedin
+          - github
+          - company_form
+          - other
+        value:
+          type:
+          - string
+          - 'null'
+        source_url:
+          type:
+          - string
+          - 'null'
+          format: uri
+        as_of:
+          type:
+          - string
+          - 'null'
+          format: date
+        current_status:
+          enum:
+          - verified_current
+          - verified_historical
+          - unverified
+          - unknown
+        outreach_suitability:
+          enum:
+          - ready
+          - permission_first
+          - identity_only
+          - suppress
+        consent_status:
+          enum:
+          - consented
+          - unknown
+          - not_applicable
+          - opted_out
+        suppression_reason:
+          type:
+          - string
+          - 'null'
+    ProspectEdition:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - schema_version
+      - edition_date
+      - revision
+      - published_at
+      - count
+      - prospects
+      properties:
+        object:
+          type: string
+          const: prospect_edition
+        schema_version:
+          type: string
+          const: '2.0'
+        edition_date:
+          type: string
+          format: date
+        revision:
+          type: integer
+          minimum: 1
+        published_at:
+          type: string
+          format: date-time
+        count:
+          type: integer
+          minimum: 1
+          maximum: 100
+        prospects:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ProspectDossier'
+  parameters:
+    EditionDate:
+      name: date
+      in: query
+      required: false
+      description: Edition date in YYYY-MM-DD format.
+      schema:
+        type: string
+        format: date
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
   responses:
-    SubscriptionRequired:
-      description: An active organization subscription is required.
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No published edition exists for the requested date.
       content:
         application/json:
           schema:
@@ -876,33 +897,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Invalid request.
+    SubscriptionRequired:
+      description: An active organization subscription is required.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: No published edition exists for the requested date.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    IfNoneMatch:
-      name: If-None-Match
-      in: header
-      required: false
-      schema:
-        type: string
-    EditionDate:
-      name: date
-      in: query
-      required: false
-      description: Edition date in YYYY-MM-DD format.
-      schema:
-        type: string
-        format: date
   securitySchemes:
     bearerAuth:
       type: http
