@@ -48,14 +48,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Unavailable:
-      description: Account-access verification is temporarily unavailable.
+    SubscriptionRequired:
+      description: An active organization subscription is required.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    SubscriptionRequired:
-      description: An active organization subscription is required.
+    Unavailable:
+      description: Account-access verification is temporarily unavailable.
       content:
         application/json:
           schema:
