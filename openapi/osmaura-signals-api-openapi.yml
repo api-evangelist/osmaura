@@ -42,26 +42,14 @@ paths:
       - Signals
 components:
   responses:
-    BadRequest:
-      description: Invalid request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Missing, invalid, or revoked API key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     SubscriptionRequired:
       description: An active organization subscription is required.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: No published edition exists for the requested date.
+    BadRequest:
+      description: Invalid request.
       content:
         application/json:
           schema:
@@ -72,7 +60,50 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing, invalid, or revoked API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No published edition exists for the requested date.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
+    LegacyEdition:
+      type: object
+      additionalProperties: false
+      required:
+      - object
+      - edition_date
+      - revision
+      - published_at
+      - count
+      - signals
+      properties:
+        object:
+          type: string
+          const: signal_edition
+        edition_date:
+          type: string
+          format: date
+        revision:
+          type: integer
+          minimum: 1
+        published_at:
+          type: string
+          format: date-time
+        count:
+          type: integer
+          minimum: 1
+          maximum: 100
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegacySignal'
     Error:
       type: object
       additionalProperties: false
@@ -125,37 +156,6 @@ components:
           items:
             type: object
             additionalProperties: true
-    LegacyEdition:
-      type: object
-      additionalProperties: false
-      required:
-      - object
-      - edition_date
-      - revision
-      - published_at
-      - count
-      - signals
-      properties:
-        object:
-          type: string
-          const: signal_edition
-        edition_date:
-          type: string
-          format: date
-        revision:
-          type: integer
-          minimum: 1
-        published_at:
-          type: string
-          format: date-time
-        count:
-          type: integer
-          minimum: 1
-          maximum: 100
-        signals:
-          type: array
-          items:
-            $ref: '#/components/schemas/LegacySignal'
   parameters:
     EditionDate:
       name: date

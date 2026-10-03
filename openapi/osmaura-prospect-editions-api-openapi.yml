@@ -41,12 +41,6 @@ paths:
       - Prospect Editions
 components:
   responses:
-    Unauthorized:
-      description: Missing, invalid, or revoked API key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     SubscriptionRequired:
       description: An active organization subscription is required.
       content:
@@ -59,6 +53,22 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing, invalid, or revoked API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    EditionLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 90
+        default: 30
   schemas:
     Error:
       type: object
@@ -99,16 +109,6 @@ components:
           type: integer
           minimum: 1
           maximum: 100
-  parameters:
-    EditionLimit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 90
-        default: 30
   securitySchemes:
     bearerAuth:
       type: http
