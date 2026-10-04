@@ -41,6 +41,12 @@ paths:
       - Prospect Editions
 components:
   responses:
+    Unauthorized:
+      description: Missing, invalid, or revoked API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     SubscriptionRequired:
       description: An active organization subscription is required.
       content:
@@ -53,40 +59,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Missing, invalid, or revoked API key.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    EditionLimit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 90
-        default: 30
   schemas:
-    Error:
-      type: object
-      additionalProperties: false
-      required:
-      - error
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            code:
-              type: string
-            message:
-              type: string
     EditionSummary:
       type: object
       additionalProperties: false
@@ -109,6 +82,33 @@ components:
           type: integer
           minimum: 1
           maximum: 100
+    Error:
+      type: object
+      additionalProperties: false
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+  parameters:
+    EditionLimit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 90
+        default: 30
   securitySchemes:
     bearerAuth:
       type: http
