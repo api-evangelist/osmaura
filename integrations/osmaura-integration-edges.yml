@@ -1,0 +1,16 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/osmaura/integrations
+- https://n8n.io/integrations/osmaura/
+- https://composio.dev/toolkits/osmaura
+- https://monid.ai/tools/osmaura
+checked:
+- https://composio.dev/toolkits/osmaura
+- https://monid.ai/tools/osmaura
+- https://n8n.io/integrations/osmaura/
+- https://zapier.com/apps/osmaura/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
