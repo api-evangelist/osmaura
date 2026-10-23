@@ -115,3 +115,9 @@ components:
       scheme: bearer
       bearerFormat: API key
       description: Tenant-scoped production read key.
+x-provenance:
+  method: harvested
+  publisher: Osmaura
+  source: https://dashboard.osmaura.com/signals/openapi.yaml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
